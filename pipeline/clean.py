@@ -53,3 +53,18 @@ def tier_mix(df: pd.DataFrame) -> pd.DataFrame:
         .agg(rows=("CostInBillingCurrency", "size"), total_cost=("CostInBillingCurrency", "sum"))
         .reset_index()
     )
+
+if __name__ == "__main__":
+    import sys
+    from pathlib import Path
+    sys.path.insert(0, str(Path(__file__).resolve().parent))
+    from ingest import load_all
+
+    df = load_all()
+    df = clean(df)
+
+    print(df.dtypes)
+    print()
+    print("Credit rows:", df["is_credit"].sum())
+    print()
+    print(tier_mix(df).head(10))
