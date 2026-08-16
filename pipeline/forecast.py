@@ -33,8 +33,8 @@ def forecast_daily_cost(daily_df: pd.DataFrame, horizon_days: int = 14) -> pd.Da
 
     hist = daily_df.copy()
     hist["type"] = "actual"
-    hist["lower"] = None
-    hist["upper"] = None
+    hist["lower"] = float("nan")
+    hist["upper"] = float("nan")
 
     future = pd.DataFrame({
         "Date": mean.index,
