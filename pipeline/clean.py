@@ -54,6 +54,7 @@ def tier_mix(df: pd.DataFrame) -> pd.DataFrame:
         .reset_index()
     )
 
+
 if __name__ == "__main__":
     import sys
     from pathlib import Path

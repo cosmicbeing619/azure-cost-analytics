@@ -2,18 +2,32 @@
 <html>
 <head>
   <meta charset="utf-8">
-  <title>Azure Cost Analytics Dashboard</title>
+  <title>Azure Cost Anomaly Dashboard</title>
   <script src="https://cdn.jsdelivr.net/npm/vega@5"></script>
   <script src="https://cdn.jsdelivr.net/npm/vega-lite@5"></script>
   <script src="https://cdn.jsdelivr.net/npm/vega-embed@6"></script>
+  <style>
+    body { font-family: -apple-system, sans-serif; max-width: 900px; margin: 40px auto; padding: 0 20px; }
+    h1 { font-size: 22px; }
+    #chart { margin-top: 20px; }
+  </style>
 </head>
 <body>
-  <h1>Azure Cost Analytics</h1>
-  <div id="chart1"></div>
+  <h1>Azure Cost Anomaly Dashboard</h1>
+  <p>Daily Azure spend, with anomalous days flagged by an Isolation Forest model.</p>
+  <div id="chart"></div>
+
+  <p>14-day forecast (SARIMA, weekly seasonality), with 80% confidence band.</p>
+  <div id="forecast-chart"></div>
+
   <script>
-    fetch('data/summary.json')
+    fetch('data/chart.json')
       .then(r => r.json())
-      .then(data => { document.getElementById('chart1').innerText = JSON.stringify(data); });
+      .then(spec => vegaEmbed('#chart', spec, { actions: false }));
+
+    fetch('data/forecast_chart.json')
+      .then(r => r.json())
+      .then(spec => vegaEmbed('#forecast-chart', spec, { actions: false }));
   </script>
 </body>
 </html>
