@@ -52,7 +52,7 @@ st.sidebar.markdown("### Contamination Rate")
 contamination = st.sidebar.slider(
     "Expected anomaly rate", min_value=0.02, max_value=0.20, value=0.07, step=0.01,
     help="What fraction of days should Isolation Forest treat as anomalous. "
-         "This is a tunable business decision, not a fixed truth -- move it "
+         "This is a tunable business decision, not a fixed truth so move it "
          "and watch which days get flagged."
 )
 
@@ -63,7 +63,7 @@ st.sidebar.markdown(f"**{int(flagged['is_anomaly'].sum())} day(s)** flagged at t
 st.sidebar.divider()
 st.sidebar.caption(
     "Pipeline: ingest → clean → Isolation Forest "
-    "(total cost + top categories + day-of-week)"
+    "(total cost + top categories + day-of-week). "
     "Drop a new CSV into /data and push to update."
 )
 
@@ -157,8 +157,8 @@ with tab2:
 
     if is_flagged:
         st.info(
-            "This day was flagged because its overall spend pattern — total cost, "
-            "category mix, or day-of-week combination — didn't resemble most other "
+            "This day was flagged because its overall spend pattern like total cost, "
+            "category mix, or day-of-week combination didn't resemble most other "
             "days in the dataset. Use the category breakdown above to judge whether "
             "that's a real issue or an expected one-off."
         )
