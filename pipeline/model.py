@@ -54,7 +54,7 @@ def build_daily_feature_matrix(df: pd.DataFrame, top_n_categories: int = 8) -> p
 def flag_anomalies(features: pd.DataFrame, contamination: float = 0.07) -> pd.DataFrame:
     """Fits Isolation Forest on the full multi-feature matrix (all columns
     except Date). contamination=0.07 = starting assumption that ~7% of days
-    are unusual -- a tunable business decision, not a fixed truth.
+    are unusual a tunable business decision, not a fixed truth.
     """
     feature_cols = [c for c in features.columns if c != "Date"]
     X = features[feature_cols].values

@@ -11,6 +11,10 @@ import streamlit as st
 import pandas as pd
 import altair as alt
 
+import numpy as np
+import shap
+from sklearn.ensemble import IsolationForest
+
 sys.path.insert(0, str(Path(__file__).resolve().parent / "pipeline"))
 from ingest import load_all
 from clean import clean
@@ -44,6 +48,25 @@ def get_base_pipeline(_signature: str):
 
 df, daily, features = get_base_pipeline(data_signature())
 
+# ---------- Cached: SHAP explainer (independent of the contamination slider —
+# contamination only shifts the flagging cutoff, not the underlying scores) ----------
+
+@st.cache_resource(show_spinner="Computing SHAP explanations (one-time per data update)...")
+def compute_shap_values(_signature: str, feature_cols: list, X: np.ndarray):
+    model = IsolationForest(contamination=0.07, random_state=42, n_estimators=200)
+    model.fit(X)
+
+    def score_fn(data):
+        return -model.decision_function(data)  # higher = more anomalous
+
+    background = shap.sample(X, min(30, len(X)))
+    explainer = shap.PermutationExplainer(score_fn, background, feature_names=feature_cols)
+    return explainer(X)
+
+
+feature_cols = [c for c in features.columns if c != "Date"]
+X = features[feature_cols].values
+shap_values = compute_shap_values(data_signature(), feature_cols, X)
 
 # ---------- Sidebar: live controls ----------
 
@@ -154,6 +177,44 @@ with tab2:
         tooltip=["MeterCategory:N", alt.Tooltip("CostInBillingCurrency:Q", format="$.2f")],
     ).properties(height=300)
     st.altair_chart(bar, use_container_width=True)
+
+        # ---------- SHAP explanation ----------
+    st.markdown("**Why the model scored this day the way it did (SHAP)**")
+
+    row_idx = features.index[features["Date"] == pd.Timestamp(selected_date)]
+    if len(row_idx) > 0:
+        row_idx = row_idx[0]
+        row_shap = shap_values.values[row_idx]
+
+        shap_df = pd.DataFrame({
+            "feature": feature_cols,
+            "value": features.loc[row_idx, feature_cols].values,
+            "shap_contribution": row_shap,
+        })
+        shap_df["abs_contribution"] = shap_df["shap_contribution"].abs()
+        shap_df = shap_df.sort_values("abs_contribution", ascending=False).head(8)
+        shap_df["direction"] = shap_df["shap_contribution"].apply(
+            lambda v: "Pushes toward anomaly" if v > 0 else "Pushes toward normal"
+        )
+
+        shap_chart = alt.Chart(shap_df).mark_bar().encode(
+            x=alt.X("shap_contribution:Q", title="SHAP contribution (impact on anomaly score)"),
+            y=alt.Y("feature:N", sort=alt.EncodingSortField(field="abs_contribution", order="descending"), title=None),
+            color=alt.Color(
+                "direction:N",
+                scale=alt.Scale(domain=["Pushes toward anomaly", "Pushes toward normal"], range=["#dc2626", "#2563eb"]),
+                legend=alt.Legend(title=None, orient="bottom"),
+            ),
+            tooltip=["feature:N", alt.Tooltip("value:Q", format=",.2f"), alt.Tooltip("shap_contribution:Q", format=".4f")],
+        ).properties(height=280)
+
+        st.altair_chart(shap_chart, use_container_width=True)
+        st.caption(
+            "Red bars increased this day's anomaly score, blue bars decreased it — "
+            "this is a direct decomposition of the model's own decision, not a manual summary."
+        )
+    else:
+        st.caption("SHAP explanation unavailable for this date.")
 
     if is_flagged:
         st.info(
