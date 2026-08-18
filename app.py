@@ -203,7 +203,7 @@ with tab2:
                 "feature:N",
                 sort=alt.EncodingSortField(field="abs_contribution", order="descending"),
                 title=None,
-                axis=alt.Axis(labelLimit=250),  # <-- widen label space, was truncating at default ~180px
+                axis=alt.Axis(labelOverlap=False, labelLimit=250),
             ),
             color=alt.Color(
                 "direction:N",
