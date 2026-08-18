@@ -199,7 +199,12 @@ with tab2:
 
         shap_chart = alt.Chart(shap_df).mark_bar().encode(
             x=alt.X("shap_contribution:Q", title="SHAP contribution (impact on anomaly score)"),
-            y=alt.Y("feature:N", sort=alt.EncodingSortField(field="abs_contribution", order="descending"), title=None),
+            y=alt.Y(
+                "feature:N",
+                sort=alt.EncodingSortField(field="abs_contribution", order="descending"),
+                title=None,
+                axis=alt.Axis(labelLimit=250),  # <-- widen label space, was truncating at default ~180px
+            ),
             color=alt.Color(
                 "direction:N",
                 scale=alt.Scale(domain=["Pushes toward anomaly", "Pushes toward normal"], range=["#dc2626", "#2563eb"]),
