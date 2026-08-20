@@ -4,7 +4,7 @@ An end-to-end anomaly detection system for Azure cloud billing data — built to
 
 Ingests raw billing exports → cleans and engineers a daily feature matrix → flags anomalous spend days with an **Isolation Forest** → explains every flag with **SHAP** → serves it all in an interactive **Streamlit** dashboard that auto-updates whenever new data is pushed to this repo.
 
-**[🔗 Live Dashboard](#)** · **[📄 Full technical writeup](#)**
+**[🔗 Live Dashboard](https://azure-cost-analytics-cosmic.streamlit.app/)**
 
 ---
 
@@ -24,7 +24,7 @@ Cloud cost data is a good real-world testbed for anomaly detection: it's skewed,
 
 ## Screenshots
 
-*(add dashboard screenshots here)*
+<img width="2556" height="1260" alt="image" src="https://github.com/user-attachments/assets/4cfb2d27-b022-44dc-affc-92cc1387c31e" />
 
 ---
 
@@ -95,6 +95,3 @@ If deployed on Streamlit Community Cloud, the push alone triggers a redeploy —
 
 Python · pandas · scikit-learn · SHAP · Altair · Streamlit · Streamlit Community Cloud
 
-## License
-
-MIT
